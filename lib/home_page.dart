@@ -31,6 +31,7 @@ class _MyHomeState extends State<MyHome> {
 
   getSharedPreference() async {
     sp = await SharedPreferences.getInstance();
+    getDataFromSp();
   }
 
   saveDataToSp() async {
@@ -132,17 +133,18 @@ class _MyHomeState extends State<MyHome> {
                     child: const Text('Update')),
               ],
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'No Contact yet..',
-              style: TextStyle(fontSize: 22),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 2,
-                itemBuilder: (context, index) => getRow(index),
-              ),
-            )
+            const SizedBox(height: 30),
+            contacts.isEmpty
+                ? Text(
+                    'No Contacts yet..',
+                    style: TextStyle(fontSize: 22),
+                  )
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: contacts.length,
+                      itemBuilder: (context, index) => getRow(index),
+                    ),
+                  )
           ],
         ),
       ),
@@ -157,18 +159,18 @@ class _MyHomeState extends State<MyHome> {
               index % 2 == 0 ? Colors.deepPurpleAccent : Colors.purple,
           foregroundColor: Colors.white,
           child: Text(
-            // contacts[index].name[0],
-            "", style: TextStyle(fontWeight: FontWeight.bold),
+            contacts[index].name[0],
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "contact",
+              contacts[index].name,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text("text"),
+            Text(contacts[index].number),
           ],
         ),
         trailing: SizedBox(
@@ -178,9 +180,24 @@ class _MyHomeState extends State<MyHome> {
               InkWell(
                   onTap: () {
                     //
+                    nameController.text = contacts[index].name;
+                    contactController.text = contacts[index].number;
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                    //
                   },
                   child: const Icon(Icons.edit)),
-              InkWell(onTap: (() {}), child: const Icon(Icons.delete)),
+              InkWell(
+                  onTap: (() {
+                    //
+                    setState(() {
+                      contacts.removeAt(index);
+                    });
+                    saveDataToSp();
+                    //
+                  }),
+                  child: const Icon(Icons.delete)),
             ],
           ),
         ),
